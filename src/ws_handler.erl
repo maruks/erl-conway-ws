@@ -37,13 +37,16 @@ neighbours(M, [Xp,Yp]) ->
     N = [[X, Y]  || X <- lists:seq(Xp-1,Xp+1) , Y <- lists:seq(Yp-1,Yp+1) , [X,Y] =/= [Xp,Yp]],
     length(lists:filter(fun(P) -> maps:is_key(P, M) end, N)).
 
-next_cell_state([X, Y], M) ->
-    case (neighbours(M, [X, Y])) of
-	N when N < 2 -> false;
-	2 ->  maps:is_key([X,Y], M);
-	3 ->  true;
-	N when N > 3 -> false
-    end.
+next_cell_state([X, Y]=P, M) ->
+    N = neighbours(M, [X, Y]),
+    cell_state(N,P,M ).
+
+cell_state(2 , P , M) ->
+    maps:is_key(P, M);
+cell_state(3 , _ ,_ ) ->
+    true;
+cell_state(N, _P, _M) when N>3 ; N<2 ->
+    false.
 
 next_state(M) ->
     K = [[X, Y] || X <- lists:seq(0, 119), Y <- lists:seq(0, 59)],
