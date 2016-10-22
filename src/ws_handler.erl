@@ -56,7 +56,7 @@ to_list(Map) ->
 
 websocket_info({timeout, _Ref, _Msg}, Req, State) ->
     %lager:info("WS TIMER ~p~n",[Msg]),
-    erlang:start_timer(1000, self(), ok ),
+    erlang:start_timer(333, self(), ok ),
 %    Cells = random_cells([],3000),
     {reply, {text,jsx:encode([{alive,to_list(State)}])}, Req, next_state(State)};
 websocket_info(_Info, Req, State) ->
