@@ -15,8 +15,8 @@ init({tcp, http}, _Req, _Opts) ->
     {upgrade, protocol, cowboy_websocket}.
 
 initial_state () ->
-    S = maps:new(),
-    maps:put([1,1],1,S).
+   RndKvs = lists:map(fun(_) -> {[rand:uniform(120)-1,rand:uniform(60)-1], 1}  end,  lists:seq(1,3000)),
+    maps:from_list(RndKvs).
 
 websocket_init(_TransportName, Req, _Opts) ->
     lager:info("WS INIT ~n",[]),
@@ -32,11 +32,6 @@ websocket_handle({text, Msg}, Req, State) ->
     {ok, Req, State};
 websocket_handle(_Data, Req, State) ->
     {ok, Req, State}.
-
-random_cells(Acc, 0) ->
-    Acc;
-random_cells(Acc, N) ->
-    random_cells([[rand:uniform(120)-1,rand:uniform(60)-1] | Acc ], N - 1).
 
 neighbours(M, [Xp,Yp]) ->
     N = [[X, Y]  || X <- lists:seq(Xp-1,Xp+1) , Y <- lists:seq(Yp-1,Yp+1) , [X,Y] =/= [Xp,Yp]],
@@ -63,7 +58,7 @@ websocket_info({timeout, _Ref, _Msg}, Req, State) ->
     %lager:info("WS TIMER ~p~n",[Msg]),
     erlang:start_timer(1000, self(), ok ),
 %    Cells = random_cells([],3000),
-    {reply, {text,jsx:encode([{alive,to_list(State)}])}, Req, State};
+    {reply, {text,jsx:encode([{alive,to_list(State)}])}, Req, next_state(State)};
 websocket_info(_Info, Req, State) ->
     {ok, Req, State}.
 
