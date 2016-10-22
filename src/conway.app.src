@@ -1,0 +1,18 @@
+{application, conway, [
+	{description, "Cowboy websocket conway server."},
+	{vsn, "1"},
+	{modules, []},
+	{registered, [conway_sup]},
+	{applications, [
+		kernel,
+		stdlib,
+		lager,
+		crypto,
+		ranch,
+		cowlib,
+		cowboy,
+		jsx
+	]},
+
+	{mod, { conway_app, []}},
+	{env, []}]}.
