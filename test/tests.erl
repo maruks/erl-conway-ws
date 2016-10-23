@@ -1,7 +1,6 @@
 -module(tests).
 -include_lib("eunit/include/eunit.hrl").
 
-
 neighbours_test() ->
     Grid = #{[1,1] => 1},
     N = ws_handler:neighbours(Grid,[0,0]),
@@ -24,6 +23,6 @@ survival2_test() ->
 
 next_state_test() ->
     Grid = #{[1,1] => 1,[1,2] => 1, [2,2] => 1},
-    NextGrid = ws_handler:next_state(Grid),
+    NextGrid = ws_handler:next_state([4,4,Grid]),
     ExpectedGrid = #{[1,1] => 1, [1,2] => 1, [2,1] => 1, [2,2] => 1},
-    ?assert(NextGrid == ExpectedGrid).
+    ?assert(NextGrid == [4, 4, ExpectedGrid]).

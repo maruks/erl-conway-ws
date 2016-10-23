@@ -1,67 +1,59 @@
 -module(ws_handler).
 -behaviour(cowboy_websocket_handler).
 
-%% -export([init/3]).
-%% -export([websocket_init/3]).
-%% -export([websocket_handle/3]).
-%% -export([websocket_info/3]).
-%% -export([websocket_terminate/3]).
-
-%% -export([neighbours/2]).
-
--compile(export_all).
+-export([init/3]).
+-export([websocket_init/3]).
+-export([websocket_handle/3]).
+-export([websocket_info/3]).
+-export([websocket_terminate/3]).
+-define(DELAY, 333).
+-export([neighbours/2,next_cell_state/2,next_state/1]).
 
 init({tcp, http}, _Req, _Opts) ->
     {upgrade, protocol, cowboy_websocket}.
 
-initial_state () ->
-   RndKvs = lists:map(fun(_) -> {[rand:uniform(120)-1,rand:uniform(60)-1], 1}  end,  lists:seq(1,3000)),
-    maps:from_list(RndKvs).
+initial_state(Width, Height) ->
+    RndKvs =  [ {[X, Y], 1} || X <- lists:seq(0,Width-1), Y <- lists:seq(0,Height-1), rand:uniform(10) < 5],
+    [Width, Height, maps:from_list(RndKvs)].
 
 websocket_init(_TransportName, Req, _Opts) ->
     lager:info("WS INIT ~n",[]),
-    erlang:start_timer(1000, self(), ok ),
-    {ok, Req, initial_state()}.
+    {ok, Req, inital_state}.
 
-handle_message(Msg) ->
-    lager:info(Msg).
+handle_message([{<<"start">>,[{<<"width">>,Width},{<<"height">>,Height}]}]) ->
+    erlang:start_timer(?DELAY, self(), ok),
+    initial_state(Width, Height).
 
-websocket_handle({text, Msg}, Req, State) ->
+websocket_handle({text, Msg}, Req, _State) ->
     lager:info("WS HANDLE ~p~n",[Msg]),
-    handle_message(jsx:decode(Msg)),
-    {ok, Req, State};
+    NextState = handle_message(jsx:decode(Msg)),
+    {ok, Req, NextState};
 websocket_handle(_Data, Req, State) ->
     {ok, Req, State}.
 
-neighbours(M, [Xp,Yp]) ->
+neighbours(Grid, [Xp,Yp]) ->
     N = [[X, Y]  || X <- lists:seq(Xp-1,Xp+1) , Y <- lists:seq(Yp-1,Yp+1) , [X,Y] =/= [Xp,Yp]],
-    length(lists:filter(fun(P) -> maps:is_key(P, M) end, N)).
+    length(lists:filter(fun(P) -> maps:is_key(P, Grid) end, N)).
 
-next_cell_state([X, Y]=P, M) ->
-    N = neighbours(M, [X, Y]),
-    cell_state(N,P,M ).
+next_cell_state([X, Y]=P, Grid) ->
+    N = neighbours(Grid, [X, Y]),
+    cell_state(N,P,Grid ).
 
-cell_state(2 , P , M) ->
-    maps:is_key(P, M);
+cell_state(2 , P , Grid) ->
+    maps:is_key(P, Grid);
 cell_state(3 , _ ,_ ) ->
     true;
-cell_state(N, _P, _M) when N>3 ; N<2 ->
+cell_state(N, _P, _Grid) when N>3 ; N<2 ->
     false.
 
-next_state(M) ->
-    K = [[X, Y] || X <- lists:seq(0, 119), Y <- lists:seq(0, 59)],
-    AliveCells = lists:filter(fun(P) -> next_cell_state(P,M) end, K),
+next_state([Width, Height, Grid]) ->
+    AliveCells = [[X, Y] || X <- lists:seq(0, Width - 1), Y <- lists:seq(0, Height - 1), next_cell_state([X, Y], Grid)],
     Kvs = lists:map(fun(C) -> {C,1} end, AliveCells),
-    maps:from_list(Kvs).
+    [Width, Height, maps:from_list(Kvs)].
 
-to_list(Map) ->
-    maps:keys(Map).
-
-websocket_info({timeout, _Ref, _Msg}, Req, State) ->
-    %lager:info("WS TIMER ~p~n",[Msg]),
-    erlang:start_timer(333, self(), ok ),
-%    Cells = random_cells([],3000),
-    {reply, {text,jsx:encode([{alive,to_list(State)}])}, Req, next_state(State)};
+websocket_info({timeout, _Ref, _Msg}, Req, [_, _, Grid] = State) ->
+    erlang:start_timer(?DELAY, self(), ok),
+    {reply, {text,jsx:encode([{alive, maps:keys(Grid)}])}, Req, next_state(State)};
 websocket_info(_Info, Req, State) ->
     {ok, Req, State}.
 
