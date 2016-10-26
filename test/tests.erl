@@ -21,8 +21,8 @@ survival2_test() ->
     CellState = ws_handler:next_cell_state([2,1],Grid),
     ?assert(CellState == true).
 
-next_state_test() ->
+next_grid_test() ->
     Grid = #{[1,1] => 1,[1,2] => 1, [2,2] => 1},
-    NextGrid = ws_handler:next_state([4,4,Grid]),
+    NextGrid = ws_handler:next_grid(4, 4, Grid),
     ExpectedGrid = #{[1,1] => 1, [1,2] => 1, [2,1] => 1, [2,2] => 1},
-    ?assert(NextGrid == [4, 4, ExpectedGrid]).
+    ?assert(NextGrid == ExpectedGrid).

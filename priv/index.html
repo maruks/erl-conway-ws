@@ -8,7 +8,7 @@
     <div>
       <canvas id="canvas"></canvas>
     </div>
-    <script src="/static/conways_client.js" type="text/javascript"></script>
+    <script src="js/compiled/conways_client.js" type="text/javascript"></script>
 
     <script>
       function setCanvasSize(width, height) {
@@ -16,17 +16,27 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
       }
-      document.body.onload = function(){
-        var width = window.innerWidth;
-        var height = window.innerHeight;
-        var cellSize = Math.max(10, window.innerWidth / 90);
+      function determineSize() {
+        var width = Math.trunc(window.innerWidth);
+        var height = Math.trunc(window.innerHeight);
+        var cellSize = Math.trunc(Math.max(10, window.innerWidth / 90));
         width = width - width % cellSize - cellSize;
         height = height - height % cellSize - cellSize;
-        setCanvasSize(width, height);
-        conways_client.core.start(width, height, cellSize);
+        return {
+          width: width,
+          height: height,
+          cellSize: cellSize
+        }
+      }
+      document.body.onload = function(){
+        var canvas = determineSize();
+        setCanvasSize(canvas.width, canvas.height);
+        conways_client.core.start(canvas.width, canvas.height, canvas.cellSize);
       }
       window.onresize = function(event) {
-        location.reload(true);
+        var canvas = determineSize();
+        setCanvasSize(canvas.width, canvas.height);
+        conways_client.core.resize(canvas.width, canvas.height, canvas.cellSize);
       }
     </script>
 
