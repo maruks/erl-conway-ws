@@ -9,7 +9,7 @@
 -export([websocket_handle/3]).
 -export([websocket_info/3]).
 -export([websocket_terminate/3]).
--define(DELAY, 333).
+-define(DELAY, 500).
 -export([neighbours/2,next_cell_state/2,next_grid/3]).
 
 init({tcp, http}, _Req, _Opts) ->
