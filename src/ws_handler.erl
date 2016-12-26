@@ -12,25 +12,27 @@
 -export([websocket_terminate/3]).
 -export([neighbours/2,next_cell_state/2,next_grid/3]).
 
+-record(state, {width, height, grid}).
+
 init({tcp, http}, _Req, _Opts) ->
     {upgrade, protocol, cowboy_websocket}.
 
 initial_state(Width, Height) ->
     RndKvs =  [ {[X, Y], 1} || X <- seq(0, Width-1), Y <- seq(0, Height-1), rand:uniform(10) < 5],
-    {Width, Height, from_list(RndKvs)}.
+    #state{width = Width, height = Height, grid = from_list(RndKvs)}.
 
 websocket_init(_TransportName, Req, _Opts) ->
     lager:info("WS INIT ~n",[]),
     {ok, Req, inital_state, ?TIMEOUT}.
 
-handle_message(Req, [{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], {Width, Height, _Grid} = State) ->
+handle_message(Req, [{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], #state{width = Width, height = Height} = State) ->
     {ok, Req, State};
 handle_message(Req, [{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], _) ->
     {ok, Req, initial_state(Width, Height)};
-handle_message(Req, [{<<"next">>, _}], {Width, Height, Grid}) ->
+handle_message(Req, [{<<"next">>, _}], #state{width = Width, height = Height, grid = Grid} = State) ->
     NextGrid = next_grid(Width, Height, Grid),
     Reply = jsx:encode([{alive, keys(NextGrid)}]),
-    {reply, {text, Reply}, Req, {Width, Height, NextGrid}}.
+    {reply, {text, Reply}, Req, State#state{grid = NextGrid}}.
 
 websocket_handle({text, Msg}, Req, State) ->
     lager:info("WS HANDLE ~p~n",[Msg]),
