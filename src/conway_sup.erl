@@ -4,7 +4,7 @@
 -behaviour(supervisor).
 
 %% API.
--export([start_link/0]).
+-export([start_link/0, start_child/3]).
 
 %% supervisor.
 -export([init/1]).
@@ -13,10 +13,15 @@
 
 -spec start_link() -> {ok, pid()}.
 start_link() ->
-	supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 %% supervisor.
 
 init([]) ->
-	Procs = [],
-	{ok, { {one_for_one, 10, 10}, Procs} }.
+	{ok, { {one_for_one, 10, 10}, []} }.
+
+start_child(Name, Width, Height) ->
+    supervisor:start_child(?MODULE, conway(conway_gen_serv, worker, Name, {Name, Width, Height})).
+
+conway(Module, Type, Name, Args) ->
+    {Name, {Module, start_link, [Args]}, transient, 2000, Type, [Module]}.
