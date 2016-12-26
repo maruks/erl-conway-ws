@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-CLIENT=~/Projects/conways-client
+CLIENT=~/Projects/conway-gui
 
 cd $CLIENT
 
