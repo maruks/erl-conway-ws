@@ -3,7 +3,7 @@ FROM ubuntu:14.10
 # docker build -t conway .
 # docker run --name life -p 9191:8080 -d conway
 # docker stop life
-# docker rm life
+# docker start life
 
 
 EXPOSE 8080
