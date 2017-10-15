@@ -16,8 +16,7 @@ start(_Type, _Args) ->
 			{"/static/[...]", cowboy_static, {priv_dir, conway, "static"}}
 		]}
 	]),
-	{ok, _} = cowboy:start_http(http, 100, [{port, PortNum}],
-		[{env, [{dispatch, Dispatch}]}]),
+	{ok, _} = cowboy:start_clear(http, [{port, PortNum}], #{env =>  #{dispatch => Dispatch}}),
         lager:info("Started on port ~p~n",[PortNum]),
 	conway_sup:start_link().
 

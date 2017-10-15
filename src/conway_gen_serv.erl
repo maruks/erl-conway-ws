@@ -15,6 +15,7 @@ start_link({Name, Width, Height}=Args) ->
     gen_server:start_link({local,Name}, ?MODULE, {Width, Height}, []).
 
 init({Width, Height}) ->
+    process_flag(trap_exit, true),
     {ok, initial_state(Width, Height)}.
 
 % API
