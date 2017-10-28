@@ -19,6 +19,9 @@ handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], 
 handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], Name) ->
     conway_gen_serv:start(Name, Width, Height),
     {ok, Name};
+handle_message([{<<"next">>, _}], initial_state = S) ->
+    erlang:send_after(250, self(), next),
+    {ok, S};
 handle_message([{<<"next">>, _}], Name) ->
     %% try conway_gen_serv:next(Name) of
     %% 	Reply -> {reply, {text, Reply}, Req, Name}
@@ -35,6 +38,11 @@ websocket_handle({text, Msg}, State) ->
 websocket_handle(_Frame, State) ->
     {ok, State}.
 
+websocket_info(next, initial_state = S) ->
+    lager:error("Out of order init",[]),
+    {ok, S};
+websocket_info(next, Name) ->
+    handle_message([{<<"next">>, 1}], Name);
 websocket_info(_Info, State) ->
     {ok, State}.
 
