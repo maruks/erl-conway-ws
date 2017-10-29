@@ -1,0 +1,24 @@
+{"1.1.0",
+[{<<"cowboy">>,
+  {git,"https://github.com/ninenines/cowboy.git",
+       {ref,"d3f15cfd8b2bb4c0c697bd995dfa4546474235ad"}},
+  0},
+ {<<"cowlib">>,
+  {git,"https://github.com/ninenines/cowlib",
+       {ref,"bd37be4d3b065600c3b76b492535e76e5d413fc1"}},
+  1},
+ {<<"goldrush">>,{pkg,<<"goldrush">>,<<"0.1.9">>},1},
+ {<<"jsx">>,
+  {git,"https://github.com/talentdeficit/jsx.git",
+       {ref,"2d8a7d07da511400475cfc5da649fda0c391f01d"}},
+  0},
+ {<<"lager">>,{pkg,<<"lager">>,<<"3.5.2">>},0},
+ {<<"ranch">>,
+  {git,"https://github.com/ninenines/ranch",
+       {ref,"55c2a9d623454f372a15e99721a37093d8773b48"}},
+  1}]}.
+[
+{pkg_hash,[
+ {<<"goldrush">>, <<"F06E5D5F1277DA5C413E84D5A2924174182FB108DABB39D5EC548B27424CD106">>},
+ {<<"lager">>, <<"614A8C8F67BF99B69EB264EA22121AD25511C055AAEC09B086773D5108C6767F">>}]}
+].
