@@ -8,6 +8,6 @@ FROM ubuntu:14.10
 
 EXPOSE 8080
 
-ADD ./_build/prod/rel/conway_ws/conway_ws-0.1.1.tar.gz /opt/conway 
+ADD ./_build/prod/rel/conway_ws/conway_ws-0.1.3.tar.gz /opt/conway 
 
 CMD ["/opt/conway/bin/conway_ws", "foreground"] 
