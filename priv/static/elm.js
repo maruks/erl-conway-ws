@@ -10221,7 +10221,13 @@ var _user$project$Main$update = F2(
 			case 'SetScreenSize':
 				var _p15 = _p13._0.width;
 				var _p14 = _p13._0.height;
-				var c = A2(_elm_lang$core$Basics$max, 10, (_p15 / 90) | 0);
+				var c = A2(
+					_elm_lang$core$Basics$max,
+					10,
+					A2(
+						_elm_lang$core$Basics$max,
+						(A2(_elm_lang$core$Debug$log, 'H', _p14) / 90) | 0,
+						(A2(_elm_lang$core$Debug$log, 'W', _p15) / 90) | 0));
 				var w = (_p15 - A2(_elm_lang$core$Basics_ops['%'], _p15, c)) - c;
 				var h = (_p14 - A2(_elm_lang$core$Basics_ops['%'], _p14, c)) - c;
 				var newGrid = {width: w, height: h, cellSize: c};
@@ -10269,8 +10275,7 @@ var _user$project$Main$update = F2(
 				if (_elm_lang$core$Native_Utils.cmp(_p17, timing.waitUntil) < 0) {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
-					var latency = timing.receivedAt - timing.sentAt;
-					var wait = A2(_elm_lang$core$Basics$max, 0, timing.delay - latency);
+					var wait = A2(_elm_lang$core$Basics$max, 0, timing.delay);
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
