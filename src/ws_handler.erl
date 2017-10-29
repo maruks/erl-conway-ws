@@ -1,5 +1,5 @@
 -module(ws_handler).
--define(TIMEOUT, 30000).
+-define(TIMEOUT, 3600000).
 
 -export([init/2]).
 
