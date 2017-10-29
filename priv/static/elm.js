@@ -10221,13 +10221,7 @@ var _user$project$Main$update = F2(
 			case 'SetScreenSize':
 				var _p15 = _p13._0.width;
 				var _p14 = _p13._0.height;
-				var c = A2(
-					_elm_lang$core$Basics$max,
-					10,
-					A2(
-						_elm_lang$core$Basics$max,
-						(A2(_elm_lang$core$Debug$log, 'H', _p14) / 90) | 0,
-						(A2(_elm_lang$core$Debug$log, 'W', _p15) / 90) | 0));
+				var c = A2(_elm_lang$core$Basics$max, 10, (_p15 / 90) | 0);
 				var w = (_p15 - A2(_elm_lang$core$Basics_ops['%'], _p15, c)) - c;
 				var h = (_p14 - A2(_elm_lang$core$Basics_ops['%'], _p14, c)) - c;
 				var newGrid = {width: w, height: h, cellSize: c};
