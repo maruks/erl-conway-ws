@@ -1,44 +1,10 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
-    <div>
-      <canvas id="canvas"></canvas>
-    </div>
-    <script src="/static/conways_client.js" type="text/javascript"></script>
-
-    <script>
-      function setCanvasSize(width, height) {
-        var canvas = document.getElementById("canvas");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      function determineSize() {
-        var width = Math.trunc(window.innerWidth);
-        var height = Math.trunc(window.innerHeight);
-        var cellSize = Math.trunc(Math.max(10, window.innerWidth / 90));
-        width = width - width % cellSize - cellSize;
-        height = height - height % cellSize - cellSize;
-        return {
-          width: width,
-          height: height,
-          cellSize: cellSize
-        }
-      }
-      document.body.onload = function(){
-        var canvas = determineSize();
-        setCanvasSize(canvas.width, canvas.height);
-        conways_client.core.start(canvas.width, canvas.height, canvas.cellSize);
-      }
-      window.onresize = function(event) {
-        var canvas = determineSize();
-        setCanvasSize(canvas.width, canvas.height);
-        conways_client.core.resize(canvas.width, canvas.height, canvas.cellSize);
-      }
-    </script>
-
-  </body>
-</html>
+<!doctype html>
+<link rel="stylesheet" href="/static/style.css" />
+<body>
+  <div></div>
+  <script src="/static/elm.js"></script>
+  <script>Elm.Main.embed(document.querySelector("div"),
+    { dynamicWsPort : true,
+      delay : 500 });
+  </script>
+</body>
