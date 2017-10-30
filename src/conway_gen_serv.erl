@@ -6,10 +6,11 @@
 
 -export([start_link/1,init/1]).
 -export([handle_call/3,handle_cast/2,handle_info/2,terminate/2,code_change/3]).
--export([start/3,next/1,stop/1]).
+-export([start/3,next/1,stop/1,grid/1]).
 
 -ifdef(TEST).
--export([neighbours/2,next_cell_state/2,next_grid/3]).
+-compile(export_all).
+-compile([{parse_transform, lager_transform}]).
 -endif.
 
 -record(state, {width, height, grid}).
@@ -25,7 +26,10 @@ init({Width, Height}) ->
 % API
 
 start(Name, Width, Height) ->
-    gen_server:cast(Name, {start, Width, Height}).
+    gen_server:call(Name, {start, Width, Height}).
+
+grid(Name) ->
+    gen_server:call(Name, {grid}).
 
 next(Name) ->
     gen_server:call(Name, {next}).
@@ -58,15 +62,15 @@ next_grid(Width, Height, Grid) ->
 % calls
 call({next}, #state{width = Width, height = Height, grid = Grid} = State) ->
     NextGrid = next_grid(Width, Height, Grid),
-    Reply = jsx:encode([{alive, keys(NextGrid)}]),
-    {reply, Reply, State#state{grid = NextGrid}}.
+    {reply, keys(NextGrid), State#state{grid = NextGrid}};
+call({grid}, #state{grid = Grid} = State) ->
+    {reply, keys(Grid), State};
+call({start, Width, Height}, #state{width = Width, height = Height} = State ) ->
+    {reply, ok, State};
+call({start, Width, Height}, _ ) ->
+    {reply, ok, initial_state(Width, Height)}.
 
 % casts
-
-cast({start, Width, Height}, #state{width = Width, height = Height} = State ) ->
-    {noreply, State};
-cast({start, Width, Height}, _ ) ->
-    {noreply, initial_state(Width, Height)};
 cast({stop}, State) ->
     {stop, normal, State}.
 

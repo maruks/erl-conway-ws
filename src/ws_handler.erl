@@ -14,10 +14,10 @@ init(Req, _State) ->
 handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], initial_state) ->
     Name = list_to_atom("grid-" ++ integer_to_list(erlang:unique_integer())),
     {ok, _Pid} = conway_sup:start_child(Name, Width, Height),
-    conway_gen_serv:start(Name, Width, Height),
+    ok = conway_gen_serv:start(Name, Width, Height),
     {ok, Name};
 handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], Name) ->
-    conway_gen_serv:start(Name, Width, Height),
+    ok = conway_gen_serv:start(Name, Width, Height),
     {ok, Name};
 handle_message([{<<"next">>, _}], initial_state = S) ->
     erlang:send_after(250, self(), next),
@@ -30,8 +30,8 @@ handle_message([{<<"next">>, _}], Name) ->
     %% 	    lager:error("ERROR ~p~p~n",[A,B]),
     %% 	    {ok, Req, Name}
     %% end.
-    Reply = conway_gen_serv:next(Name),
-    {reply, {text, Reply}, Name}.
+    Grid = conway_gen_serv:next(Name),
+    {reply, {text, jsx:encode([{alive, map:keys(Grid)}])}, Name}.
 
 websocket_handle({text, Msg}, State) ->
     handle_message(jsx:decode(Msg), State);
