@@ -31,7 +31,7 @@ handle_message([{<<"next">>, _}], Name) ->
     %% 	    {ok, Req, Name}
     %% end.
     Grid = conway_gen_serv:next(Name),
-    {reply, {text, jsx:encode([{alive, map:keys(Grid)}])}, Name}.
+    {reply, {text, jsx:encode([{alive, Grid}])}, Name}.
 
 websocket_handle({text, Msg}, State) ->
     handle_message(jsx:decode(Msg), State);
