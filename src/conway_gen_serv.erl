@@ -8,6 +8,10 @@
 -export([handle_call/3,handle_cast/2,handle_info/2,terminate/2,code_change/3]).
 -export([start/3,next/1,stop/1]).
 
+-ifdef(TEST).
+-export([neighbours/2,next_cell_state/2,next_grid/3]).
+-endif.
+
 -record(state, {width, height, grid}).
 
 start_link({Name, Width, Height}=Args) ->
