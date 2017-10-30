@@ -10182,7 +10182,7 @@ var _user$project$Main$initModel = F2(
 				portNum: _p11.dynamicWsPort ? location.port_ : '8080'
 			},
 			cells: _elm_lang$core$Dict$empty,
-			timing: {waitUntil: 0, sentAt: 0, receivedAt: 0, delay: _p11.delay}
+			timing: {waitUntil: 0, sentAt: 0, delay: _p11.delay}
 		};
 	});
 var _user$project$Main$Flags = F2(
@@ -10197,9 +10197,9 @@ var _user$project$Main$Grid = F3(
 	function (a, b, c) {
 		return {width: a, height: b, cellSize: c};
 	});
-var _user$project$Main$Timing = F4(
-	function (a, b, c, d) {
-		return {waitUntil: a, sentAt: b, receivedAt: c, delay: d};
+var _user$project$Main$Timing = F3(
+	function (a, b, c) {
+		return {waitUntil: a, sentAt: b, delay: c};
 	});
 var _user$project$Main$Model = F4(
 	function (a, b, c, d) {
@@ -10266,23 +10266,21 @@ var _user$project$Main$update = F2(
 				};
 			case 'NewFrame':
 				var _p17 = _p13._0;
-				if (_elm_lang$core$Native_Utils.cmp(_p17, timing.waitUntil) < 0) {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				} else {
-					var wait = A2(_elm_lang$core$Basics$max, 0, timing.delay);
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								timing: _elm_lang$core$Native_Utils.update(
-									timing,
-									{waitUntil: _p17 + wait, sentAt: _p17})
-							}),
-						_1: A2(_elm_lang$websocket$WebSocket$send, wsAddr, '{\"next\" : 1}')
-					};
-				}
+				return (_elm_lang$core$Native_Utils.cmp(_p17, timing.waitUntil) < 0) ? {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none} : {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							timing: _elm_lang$core$Native_Utils.update(
+								timing,
+								{sentAt: _p17, waitUntil: _p17 + 1000})
+						}),
+					_1: A2(_elm_lang$websocket$WebSocket$send, wsAddr, '{\"next\" : 1}')
+				};
 			case 'CurrentTime':
+				var _p18 = _p13._0;
+				var latency = _p18 - timing.sentAt;
+				var wait = A2(_elm_lang$core$Basics$max, 0, timing.delay - latency);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -10290,7 +10288,7 @@ var _user$project$Main$update = F2(
 						{
 							timing: _elm_lang$core$Native_Utils.update(
 								timing,
-								{receivedAt: _p13._0})
+								{waitUntil: _p18 + wait})
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10318,14 +10316,14 @@ var _user$project$Main$init = F2(
 			_1: A2(_elm_lang$core$Task$perform, _user$project$Main$SetScreenSize, _elm_lang$window$Window$size)
 		};
 	});
-var _user$project$Main$subscriptions = function (_p18) {
-	var _p19 = _p18;
+var _user$project$Main$subscriptions = function (_p19) {
+	var _p20 = _p19;
 	return _elm_lang$core$Platform_Sub$batch(
 		{
 			ctor: '::',
 			_0: A2(
 				_elm_lang$websocket$WebSocket$listen,
-				_user$project$Main$wsAddress(_p19.url),
+				_user$project$Main$wsAddress(_p20.url),
 				_user$project$Main$NewMessage),
 			_1: {
 				ctor: '::',
