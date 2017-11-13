@@ -31,7 +31,8 @@ handle_message([{<<"next">>, _}], Name) ->
     %% 	    {ok, Req, Name}
     %% end.
     Grid = conway_gen_server:next(Name),
-    {reply, {text, jsx:encode([{alive, Grid}])}, Name}.
+    ListGrid = sets:fold(fun({X,Y}, Acc) -> [[X,Y] | Acc] end, [], Grid),
+    {reply, {text, jsx:encode([{alive, ListGrid}])}, Name}.
 
 websocket_handle({text, Msg}, State) ->
     handle_message(jsx:decode(Msg), State);

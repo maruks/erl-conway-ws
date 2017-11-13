@@ -1,32 +1,34 @@
 -module(conway_gen_server_test).
 -include_lib("eunit/include/eunit.hrl").
 
+-import(sets,[from_list/1]).
+
 -import(conway_gen_server,[neighbours/2,next_cell_state/2,next_grid/3]).
 
 neighbours_test() ->
-    Grid = #{[1,1] => 1},
-    N = neighbours(Grid,[0,0]),
+    Grid = from_list([{1,1}]),
+    N = neighbours(Grid,{0,0}),
     ?assert(N == 1).
 
 neighbours2_test() ->
-    Grid = #{[1,1] => 1,[1,2] => 1},
-    N = neighbours(Grid,[2,1]),
+    Grid = from_list([{1,1}, {1,2}]),
+    N = neighbours(Grid,{2,1}),
     ?assert(N == 2).
 
 survival_test() ->
-    Grid = #{[1,1] => 1,[1,2] => 1},
-    CellState = next_cell_state([2,1],Grid),
+    Grid = from_list([{1,1}, {1,2}]),
+    CellState = next_cell_state({2,1},Grid),
     ?assert(CellState == false).
 
 survival2_test() ->
-    Grid = #{[1,1] => 1,[1,2] => 1,[2,1] => 1, [2,2] => 1},
-    CellState = next_cell_state([2,1],Grid),
+    Grid = from_list([{1,1}, {1,2}, {2,1}, {2,2}]),
+    CellState = next_cell_state({2,1},Grid),
     ?assert(CellState == true).
 
 next_grid_test() ->
-    Grid = #{[1,1] => 1,[1,2] => 1, [2,2] => 1},
+    Grid = from_list([{1,1}, {1,2}, {2,2}]),
     NextGrid = next_grid(4, 4, Grid),
-    ExpectedGrid = #{[1,1] => 1, [1,2] => 1, [2,1] => 1, [2,2] => 1},
+    ExpectedGrid = from_list([{1,1}, {1,2}, {2,1}, {2,2}]),
     ?assert(NextGrid == ExpectedGrid).
 
 server_test_ () ->
@@ -40,7 +42,7 @@ updates_and_returns_grid_when_next_is_called(Pid) ->
     Grid = conway_gen_server:next(Pid),
     CurrentGrid = conway_gen_server:grid(Pid),
     NewGrid = conway_gen_server:next(Pid),
-    [?_assert(is_list(Grid)),
+    [?_assert(sets:is_set(Grid)),
      ?_assertNotEqual(Grid, NewGrid),
      ?_assertEqual(Grid, CurrentGrid)].
 
@@ -50,7 +52,7 @@ resets_grid_if_resized(Pid) ->
     CurrentGrid = conway_gen_server:grid(Pid),
     ok = conway_gen_server:start(Pid, 40, 40),
     ResizedGrid = conway_gen_server:grid(Pid),
-    [?_assert(is_list(Grid)),
+    [?_assert(sets:is_set(Grid)),
      ?_assertNotEqual(Grid, ResizedGrid),
      ?_assertEqual(Grid, CurrentGrid)].
 
