@@ -21,7 +21,7 @@ init([]) ->
 	{ok, { {one_for_one, 10, 10}, []} }.
 
 start_child(Name, Width, Height) ->
-    supervisor:start_child(?MODULE, conway(conway_gen_serv, worker, Name, {Name, Width, Height})).
+    supervisor:start_child(?MODULE, conway(conway_gen_server, worker, Name, {Name, Width, Height})).
 
 conway(Module, Type, Name, Args) ->
     {Name, {Module, start_link, [Args]}, transient, 2000, Type, [Module]}.

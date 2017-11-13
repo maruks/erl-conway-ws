@@ -1,4 +1,4 @@
--module(conway_gen_serv).
+-module(conway_gen_server).
 -behaviour(gen_server).
 
 -import(lists,[map/2,seq/2]).

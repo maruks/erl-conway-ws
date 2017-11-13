@@ -14,23 +14,23 @@ init(Req, _State) ->
 handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], initial_state) ->
     Name = list_to_atom("grid-" ++ integer_to_list(erlang:unique_integer())),
     {ok, _Pid} = conway_sup:start_child(Name, Width, Height),
-    ok = conway_gen_serv:start(Name, Width, Height),
+    ok = conway_gen_server:start(Name, Width, Height),
     {ok, Name};
 handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], Name) ->
-    ok = conway_gen_serv:start(Name, Width, Height),
+    ok = conway_gen_server:start(Name, Width, Height),
     {ok, Name};
 handle_message([{<<"next">>, _}], initial_state = S) ->
     erlang:send_after(250, self(), next),
     {ok, S};
 handle_message([{<<"next">>, _}], Name) ->
-    %% try conway_gen_serv:next(Name) of
+    %% try conway_gen_server:next(Name) of
     %% 	Reply -> {reply, {text, Reply}, Req, Name}
     %% catch
     %% 	A:B ->
     %% 	    lager:error("ERROR ~p~p~n",[A,B]),
     %% 	    {ok, Req, Name}
     %% end.
-    Grid = conway_gen_serv:next(Name),
+    Grid = conway_gen_server:next(Name),
     {reply, {text, jsx:encode([{alive, Grid}])}, Name}.
 
 websocket_handle({text, Msg}, State) ->
@@ -47,6 +47,6 @@ websocket_info(_Info, State) ->
     {ok, State}.
 
 terminate(Reason, _, Name) ->
-    conway_gen_serv:stop(Name),
+    conway_gen_server:stop(Name),
     lager:info("WS TERMINATE ~p~n",[Reason]),
     ok.
