@@ -13,16 +13,16 @@ init(Req, _State) ->
 
 handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], initial_state) ->
     {ok, Pid} = conway_sup:start_child(Width, Height),
-    ok = conway_gen_server:start(Pid, Width, Height),
+    ok = conway_sup:start(Pid, Width, Height),
     {ok, Pid};
 handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], Pid) ->
-    ok = conway_gen_server:start(Pid, Width, Height),
+    ok = conway_sup:start(Pid, Width, Height),
     {ok, Pid};
 handle_message([{<<"next">>, _}], initial_state = S) ->
     erlang:send_after(500, self(), next),
     {ok, S};
 handle_message([{<<"next">>, _}], Pid) ->
-    Grid = conway_gen_server:next(Pid),
+    Grid = conway_sup:next(Pid),
     ListGrid = sets:fold(fun({X,Y}, Acc) -> [[X,Y] | Acc] end, [], Grid),
     {reply, {text, jsx:encode([{alive, ListGrid}])}, Pid}.
 
@@ -40,6 +40,6 @@ websocket_info(_Info, State) ->
     {ok, State}.
 
 terminate(Reason, _, Pid) ->
-    conway_gen_server:stop(Pid),
+    conway_sup:stop(Pid),
     lager:info("WS TERMINATE ~p~n",[Reason]),
     ok.

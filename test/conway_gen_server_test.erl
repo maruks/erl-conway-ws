@@ -39,19 +39,19 @@ server_test_ () ->
    fun resets_grid_if_resized/1]}.
 
 updates_and_returns_grid_when_next_is_called(Pid) ->
-    Grid = conway_gen_server:next(Pid),
-    CurrentGrid = conway_gen_server:grid(Pid),
-    NewGrid = conway_gen_server:next(Pid),
+    Grid = conway_sup:next(Pid),
+    CurrentGrid = conway_sup:grid(Pid),
+    NewGrid = conway_sup:next(Pid),
     [?_assert(sets:is_set(Grid)),
      ?_assertNotEqual(Grid, NewGrid),
      ?_assertEqual(Grid, CurrentGrid)].
 
 resets_grid_if_resized(Pid) ->
-    Grid = conway_gen_server:next(Pid),
-    ok = conway_gen_server:start(Pid, 30, 30),
-    CurrentGrid = conway_gen_server:grid(Pid),
-    ok = conway_gen_server:start(Pid, 40, 40),
-    ResizedGrid = conway_gen_server:grid(Pid),
+    Grid = conway_sup:next(Pid),
+    ok = conway_sup:start(Pid, 30, 30),
+    CurrentGrid = conway_sup:grid(Pid),
+    ok = conway_sup:start(Pid, 40, 40),
+    ResizedGrid = conway_sup:grid(Pid),
     [?_assert(sets:is_set(Grid)),
      ?_assertNotEqual(Grid, ResizedGrid),
      ?_assertEqual(Grid, CurrentGrid)].
@@ -61,4 +61,4 @@ setup() ->
     Pid.
 
 cleanup(Pid) ->
-    conway_gen_server:stop(Pid).
+    conway_sup:stop(Pid).

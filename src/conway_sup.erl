@@ -5,6 +5,7 @@
 
 %% API.
 -export([start_link/0, start_child/2]).
+-export([start/3,next/1,stop/1,grid/1]).
 
 %% supervisor.
 -export([init/1]).
@@ -26,3 +27,17 @@ start_child(Width, Height) ->
 
 conway(Module, Type, Id, Args) ->
     {Id, {Module, start_link, [Args]}, transient, 2000, Type, [Module]}.
+
+% API
+
+start(Pid, Width, Height) ->
+    gen_server:call(Pid, {start, Width, Height}).
+
+grid(Pid) ->
+    gen_server:call(Pid, {grid}).
+
+next(Pid) ->
+    gen_server:call(Pid, {next}).
+
+stop(Pid) ->
+    gen_server:cast(Pid, {stop}).
