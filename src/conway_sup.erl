@@ -4,7 +4,7 @@
 -behaviour(supervisor).
 
 %% API.
--export([start_link/0, start_child/3]).
+-export([start_link/0, start_child/2]).
 
 %% supervisor.
 -export([init/1]).
@@ -20,8 +20,9 @@ start_link() ->
 init([]) ->
 	{ok, { {one_for_one, 10, 10}, []} }.
 
-start_child(Name, Width, Height) ->
-    supervisor:start_child(?MODULE, conway(conway_gen_server, worker, Name, {Name, Width, Height})).
+start_child(Width, Height) ->
+    Id = erlang:unique_integer(),
+    supervisor:start_child(?MODULE, conway(conway_gen_server, worker, Id, {Width, Height})).
 
-conway(Module, Type, Name, Args) ->
-    {Name, {Module, start_link, [Args]}, transient, 2000, Type, [Module]}.
+conway(Module, Type, Id, Args) ->
+    {Id, {Module, start_link, [Args]}, transient, 2000, Type, [Module]}.

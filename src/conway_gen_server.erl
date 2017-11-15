@@ -15,9 +15,9 @@
 
 -record(state, {width, height, grid}).
 
-start_link({Name, Width, Height}=Args) ->
+start_link({Width, Height}=Args) ->
     lager:info("START ~p~n",[Args]),
-    gen_server:start_link({local,Name}, ?MODULE, {Width, Height}, []).
+    gen_server:start_link(?MODULE, {Width, Height}, []).
 
 init({Width, Height}) ->
     process_flag(trap_exit, true),
@@ -25,17 +25,17 @@ init({Width, Height}) ->
 
 % API
 
-start(Name, Width, Height) ->
-    gen_server:call(Name, {start, Width, Height}).
+start(Pid, Width, Height) ->
+    gen_server:call(Pid, {start, Width, Height}).
 
-grid(Name) ->
-    gen_server:call(Name, {grid}).
+grid(Pid) ->
+    gen_server:call(Pid, {grid}).
 
-next(Name) ->
-    gen_server:call(Name, {next}).
+next(Pid) ->
+    gen_server:call(Pid, {next}).
 
-stop(Name) ->
-    gen_server:cast(Name, {stop}).
+stop(Pid) ->
+    gen_server:cast(Pid, {stop}).
 
 % internal functions
 

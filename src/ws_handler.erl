@@ -12,27 +12,19 @@ init(Req, _State) ->
     {cowboy_websocket, Req, initial_state, #{idle_timeout => ?TIMEOUT}}.
 
 handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], initial_state) ->
-    Name = list_to_atom("grid-" ++ integer_to_list(erlang:unique_integer())),
-    {ok, _Pid} = conway_sup:start_child(Name, Width, Height),
-    ok = conway_gen_server:start(Name, Width, Height),
-    {ok, Name};
-handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], Name) ->
-    ok = conway_gen_server:start(Name, Width, Height),
-    {ok, Name};
+    {ok, Pid} = conway_sup:start_child(Width, Height),
+    ok = conway_gen_server:start(Pid, Width, Height),
+    {ok, Pid};
+handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], Pid) ->
+    ok = conway_gen_server:start(Pid, Width, Height),
+    {ok, Pid};
 handle_message([{<<"next">>, _}], initial_state = S) ->
-    erlang:send_after(250, self(), next),
+    erlang:send_after(500, self(), next),
     {ok, S};
-handle_message([{<<"next">>, _}], Name) ->
-    %% try conway_gen_server:next(Name) of
-    %% 	Reply -> {reply, {text, Reply}, Req, Name}
-    %% catch
-    %% 	A:B ->
-    %% 	    lager:error("ERROR ~p~p~n",[A,B]),
-    %% 	    {ok, Req, Name}
-    %% end.
-    Grid = conway_gen_server:next(Name),
+handle_message([{<<"next">>, _}], Pid) ->
+    Grid = conway_gen_server:next(Pid),
     ListGrid = sets:fold(fun({X,Y}, Acc) -> [[X,Y] | Acc] end, [], Grid),
-    {reply, {text, jsx:encode([{alive, ListGrid}])}, Name}.
+    {reply, {text, jsx:encode([{alive, ListGrid}])}, Pid}.
 
 websocket_handle({text, Msg}, State) ->
     handle_message(jsx:decode(Msg), State);
@@ -41,13 +33,13 @@ websocket_handle(_Frame, State) ->
 
 websocket_info(next, initial_state = S) ->
     lager:error("Out of order init",[]),
-    {ok, S};
-websocket_info(next, Name) ->
-    handle_message([{<<"next">>, 1}], Name);
+    {stop, S};
+websocket_info(next, Pid) ->
+    handle_message([{<<"next">>, 1}], Pid);
 websocket_info(_Info, State) ->
     {ok, State}.
 
-terminate(Reason, _, Name) ->
-    conway_gen_server:stop(Name),
+terminate(Reason, _, Pid) ->
+    conway_gen_server:stop(Pid),
     lager:info("WS TERMINATE ~p~n",[Reason]),
     ok.
