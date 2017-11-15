@@ -9962,44 +9962,46 @@ var _elm_lang$window$Window$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Window'] = {pkg: 'elm-lang/window', init: _elm_lang$window$Window$init, onEffects: _elm_lang$window$Window$onEffects, onSelfMsg: _elm_lang$window$Window$onSelfMsg, tag: 'sub', subMap: _elm_lang$window$Window$subMap};
 
-var _user$project$Main$renderCells = function (size) {
-	return function (_p0) {
-		return A2(
-			_elm_lang$core$List$map,
-			function (_p1) {
-				var _p2 = _p1;
-				return A2(
-					_elm_lang$svg$Svg$rect,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$x(
-							_elm_lang$core$Basics$toString((_p2._0._0 * size) + 1)),
-						_1: {
+var _user$project$Main$renderCells = F2(
+	function (size, color) {
+		return function (_p0) {
+			return A2(
+				_elm_lang$core$List$map,
+				function (_p1) {
+					var _p2 = _p1;
+					return A2(
+						_elm_lang$svg$Svg$rect,
+						{
 							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$y(
-								_elm_lang$core$Basics$toString((_p2._0._1 * size) + 1)),
+							_0: _elm_lang$svg$Svg_Attributes$x(
+								_elm_lang$core$Basics$toString((_p2._0._0 * size) + 1)),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$width(
-									_elm_lang$core$Basics$toString(size - 1)),
+								_0: _elm_lang$svg$Svg_Attributes$y(
+									_elm_lang$core$Basics$toString((_p2._0._1 * size) + 1)),
 								_1: {
 									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$height(
+									_0: _elm_lang$svg$Svg_Attributes$width(
 										_elm_lang$core$Basics$toString(size - 1)),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$style('fill:#007799'),
-										_1: {ctor: '[]'}
+										_0: _elm_lang$svg$Svg_Attributes$height(
+											_elm_lang$core$Basics$toString(size - 1)),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$svg$Svg_Attributes$style(
+												A2(_elm_lang$core$Basics_ops['++'], 'fill:', color)),
+											_1: {ctor: '[]'}
+										}
 									}
 								}
 							}
-						}
-					},
-					{ctor: '[]'});
-			},
-			_elm_lang$core$Dict$toList(_p0));
-	};
-};
+						},
+						{ctor: '[]'});
+				},
+				_elm_lang$core$Dict$toList(_p0));
+		};
+	});
 var _user$project$Main$range = F3(
 	function (from, to, step) {
 		return (_elm_lang$core$Native_Utils.cmp(from, to) < 0) ? {
@@ -10112,7 +10114,7 @@ var _user$project$Main$view = function (_p3) {
 		},
 		{ctor: '[]'});
 	var g = A3(_user$project$Main$renderGrid, width, height, cellSize);
-	var c = A2(_user$project$Main$renderCells, cellSize, _p4.cells);
+	var c = A3(_user$project$Main$renderCells, cellSize, _p4.color, _p4.cells);
 	return A2(
 		_elm_lang$svg$Svg$svg,
 		{
@@ -10145,6 +10147,28 @@ var _user$project$Main$wsAddress = function (_p6) {
 				':',
 				A2(_elm_lang$core$Basics_ops['++'], _p7.portNum, '/websocket'))));
 };
+var _user$project$Main$colors = _elm_lang$core$Array$fromList(
+	{
+		ctor: '::',
+		_0: '#483D8B',
+		_1: {
+			ctor: '::',
+			_0: '#007799',
+			_1: {
+				ctor: '::',
+				_0: '#4682B4',
+				_1: {
+					ctor: '::',
+					_0: '#708090',
+					_1: {
+						ctor: '::',
+						_0: '#808080',
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		}
+	});
 var _user$project$Main$toCellsDict = function (_p8) {
 	return _elm_lang$core$Dict$fromList(
 		A2(
@@ -10182,7 +10206,8 @@ var _user$project$Main$initModel = F2(
 				portNum: _p11.dynamicWsPort ? location.port_ : '8080'
 			},
 			cells: _elm_lang$core$Dict$empty,
-			timing: {waitUntil: 0, sentAt: 0, delay: _p11.delay}
+			timing: {waitUntil: 0, sentAt: 0, delay: _p11.delay},
+			color: '#007799'
 		};
 	});
 var _user$project$Main$Flags = F2(
@@ -10201,12 +10226,35 @@ var _user$project$Main$Timing = F3(
 	function (a, b, c) {
 		return {waitUntil: a, sentAt: b, delay: c};
 	});
-var _user$project$Main$Model = F4(
-	function (a, b, c, d) {
-		return {grid: a, url: b, cells: c, timing: d};
+var _user$project$Main$Model = F5(
+	function (a, b, c, d, e) {
+		return {grid: a, url: b, cells: c, timing: d, color: e};
+	});
+var _user$project$Main$SetColor = function (a) {
+	return {ctor: 'SetColor', _0: a};
+};
+var _user$project$Main$init = F2(
+	function (flags, location) {
+		return {
+			ctor: '_Tuple2',
+			_0: A2(_user$project$Main$initModel, flags, location),
+			_1: A2(_elm_lang$core$Task$perform, _user$project$Main$SetColor, _elm_lang$core$Time$now)
+		};
 	});
 var _user$project$Main$CurrentTime = function (a) {
 	return {ctor: 'CurrentTime', _0: a};
+};
+var _user$project$Main$NewFrame = function (a) {
+	return {ctor: 'NewFrame', _0: a};
+};
+var _user$project$Main$NewLocation = function (a) {
+	return {ctor: 'NewLocation', _0: a};
+};
+var _user$project$Main$NewMessage = function (a) {
+	return {ctor: 'NewMessage', _0: a};
+};
+var _user$project$Main$SetScreenSize = function (a) {
+	return {ctor: 'SetScreenSize', _0: a};
 };
 var _user$project$Main$update = F2(
 	function (msg, model) {
@@ -10244,15 +10292,36 @@ var _user$project$Main$update = F2(
 						{grid: newGrid}),
 					_1: A2(_elm_lang$websocket$WebSocket$send, wsAddr, msg)
 				};
+			case 'SetColor':
+				var rndIdx = A2(
+					_elm_lang$core$Basics_ops['%'],
+					_elm_lang$core$Basics$round(
+						_elm_lang$core$Time$inMilliseconds(_p13._0)),
+					_elm_lang$core$Array$length(_user$project$Main$colors));
+				var col = function () {
+					var _p16 = A2(_elm_lang$core$Array$get, rndIdx, _user$project$Main$colors);
+					if (_p16.ctor === 'Just') {
+						return _p16._0;
+					} else {
+						return '#007799';
+					}
+				}();
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{color: col}),
+					_1: A2(_elm_lang$core$Task$perform, _user$project$Main$SetScreenSize, _elm_lang$window$Window$size)
+				};
 			case 'NewMessage':
 				var result = A2(
 					_elm_lang$core$Result$map,
 					_user$project$Main$toCellsDict,
 					A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Main$cellsDecoder, _p13._0));
 				var newCells = function () {
-					var _p16 = result;
-					if (_p16.ctor === 'Ok') {
-						return _p16._0;
+					var _p17 = result;
+					if (_p17.ctor === 'Ok') {
+						return _p17._0;
 					} else {
 						return _elm_lang$core$Dict$empty;
 					}
@@ -10265,21 +10334,21 @@ var _user$project$Main$update = F2(
 					_1: A2(_elm_lang$core$Task$perform, _user$project$Main$CurrentTime, _elm_lang$core$Time$now)
 				};
 			case 'NewFrame':
-				var _p17 = _p13._0;
-				return (_elm_lang$core$Native_Utils.cmp(_p17, timing.waitUntil) < 0) ? {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none} : {
+				var _p18 = _p13._0;
+				return (_elm_lang$core$Native_Utils.cmp(_p18, timing.waitUntil) < 0) ? {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none} : {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							timing: _elm_lang$core$Native_Utils.update(
 								timing,
-								{sentAt: _p17, waitUntil: _p17 + 1000})
+								{sentAt: _p18, waitUntil: _p18 + 1000})
 						}),
 					_1: A2(_elm_lang$websocket$WebSocket$send, wsAddr, '{\"next\" : 1}')
 				};
 			case 'CurrentTime':
-				var _p18 = _p13._0;
-				var latency = _p18 - timing.sentAt;
+				var _p19 = _p13._0;
+				var latency = _p19 - timing.sentAt;
 				var wait = A2(_elm_lang$core$Basics$max, 0, timing.delay - latency);
 				return {
 					ctor: '_Tuple2',
@@ -10288,7 +10357,7 @@ var _user$project$Main$update = F2(
 						{
 							timing: _elm_lang$core$Native_Utils.update(
 								timing,
-								{waitUntil: _p18 + wait})
+								{waitUntil: _p19 + wait})
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10296,34 +10365,14 @@ var _user$project$Main$update = F2(
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
-var _user$project$Main$NewFrame = function (a) {
-	return {ctor: 'NewFrame', _0: a};
-};
-var _user$project$Main$NewLocation = function (a) {
-	return {ctor: 'NewLocation', _0: a};
-};
-var _user$project$Main$NewMessage = function (a) {
-	return {ctor: 'NewMessage', _0: a};
-};
-var _user$project$Main$SetScreenSize = function (a) {
-	return {ctor: 'SetScreenSize', _0: a};
-};
-var _user$project$Main$init = F2(
-	function (flags, location) {
-		return {
-			ctor: '_Tuple2',
-			_0: A2(_user$project$Main$initModel, flags, location),
-			_1: A2(_elm_lang$core$Task$perform, _user$project$Main$SetScreenSize, _elm_lang$window$Window$size)
-		};
-	});
-var _user$project$Main$subscriptions = function (_p19) {
-	var _p20 = _p19;
+var _user$project$Main$subscriptions = function (_p20) {
+	var _p21 = _p20;
 	return _elm_lang$core$Platform_Sub$batch(
 		{
 			ctor: '::',
 			_0: A2(
 				_elm_lang$websocket$WebSocket$listen,
-				_user$project$Main$wsAddress(_p20.url),
+				_user$project$Main$wsAddress(_p21.url),
 				_user$project$Main$NewMessage),
 			_1: {
 				ctor: '::',
