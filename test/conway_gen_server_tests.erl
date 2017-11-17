@@ -1,4 +1,4 @@
--module(conway_gen_server_test).
+-module(conway_gen_server_tests).
 -include_lib("eunit/include/eunit.hrl").
 
 -import(sets,[from_list/1]).
