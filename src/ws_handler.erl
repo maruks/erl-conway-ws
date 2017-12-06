@@ -1,5 +1,5 @@
 -module(ws_handler).
--define(TIMEOUT, 3600000).
+-define(TIMEOUT, 60000).
 
 -export([init/2]).
 
@@ -19,21 +19,17 @@ handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], 
     ok = conway_sup:start(Pid, Width, Height),
     {ok, Pid};
 handle_message([{<<"next">>, _}], initial_state = S) ->
-    erlang:send_after(500, self(), next),
-    {ok, S};
+    {reply, {text, jsx:encode([{type, error}, {code, 1}])}, S};
 handle_message([{<<"next">>, _}], Pid) ->
     Grid = conway_sup:next(Pid),
     ListGrid = sets:fold(fun({X,Y}, Acc) -> [[X,Y] | Acc] end, [], Grid),
-    {reply, {text, jsx:encode([{alive, ListGrid}])}, Pid}.
+    {reply, {text, jsx:encode([{type, alive}, {cells, ListGrid}])}, Pid}.
 
 websocket_handle({text, Msg}, State) ->
     handle_message(jsx:decode(Msg), State);
 websocket_handle(_Frame, State) ->
     {ok, State}.
 
-websocket_info(next, initial_state = S) ->
-    lager:error("Out of order init",[]),
-    {stop, S};
 websocket_info(next, Pid) ->
     handle_message([{<<"next">>, 1}], Pid);
 websocket_info(_Info, State) ->
