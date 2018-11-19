@@ -22,7 +22,7 @@ handle_message([{<<"next">>, _}], initial_state = S) ->
     {reply, {text, jsx:encode([{tag, error}, {code, 2}])}, S};
 handle_message([{<<"next">>, _}], Pid) ->
     Grid = conway_sup:next(Pid),
-    ListGrid = sets:fold(fun({X,Y}, Acc) -> [{color, 1, point , [X,Y]} | Acc] end, [], Grid),
+    ListGrid = sets:fold(fun({X,Y}, Acc) -> [[{color, 1}, {point , [X,Y]}] | Acc] end, [], Grid),
     {reply, {text, jsx:encode([{tag, cells}, {cells, ListGrid}])}, Pid}.
 
 websocket_handle({text, Msg}, State) ->
