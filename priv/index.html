@@ -1,10 +1,18 @@
 <!doctype html>
-<link rel="stylesheet" href="/static/style.css" />
-<body>
-  <div></div>
-  <script src="/static/elm.js"></script>
-  <script>Elm.Main.embed(document.querySelector("div"),
-    { dynamicWsPort : true,
-      delay : 500 });
-  </script>
-</body>
+<html>
+
+  <head>
+    <link rel="stylesheet" href="static/style.css" />
+    <title>Game of Life - Erlang</title>
+  </head>
+
+  <body>
+    <div></div>
+    <script src="static/elm.js"></script>
+    <script>Elm.Main.embed(document.querySelector("div"),
+               { dynamicWsPort : true,
+                 delay : 400 });
+    </script>
+  </body>
+
+</html>

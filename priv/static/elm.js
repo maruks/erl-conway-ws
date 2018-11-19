@@ -9962,35 +9962,47 @@ var _elm_lang$window$Window$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Window'] = {pkg: 'elm-lang/window', init: _elm_lang$window$Window$init, onEffects: _elm_lang$window$Window$onEffects, onSelfMsg: _elm_lang$window$Window$onSelfMsg, tag: 'sub', subMap: _elm_lang$window$Window$subMap};
 
+var _user$project$Main$getOr = F3(
+	function (dict, key, $default) {
+		var _p0 = A2(_elm_lang$core$Dict$get, key, dict);
+		if (_p0.ctor === 'Nothing') {
+			return $default;
+		} else {
+			return _p0._0;
+		}
+	});
 var _user$project$Main$renderCells = F2(
-	function (size, color) {
-		return function (_p0) {
+	function (size, colors) {
+		return function (_p1) {
 			return A2(
 				_elm_lang$core$List$map,
-				function (_p1) {
-					var _p2 = _p1;
+				function (_p2) {
+					var _p3 = _p2;
 					return A2(
 						_elm_lang$svg$Svg$rect,
 						{
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$x(
-								_elm_lang$core$Basics$toString((_p2._0._0 * size) + 1)),
+								_elm_lang$core$Basics$toString((_p3._0._0 * size) + 1)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Attributes$y(
-									_elm_lang$core$Basics$toString((_p2._0._1 * size) + 1)),
+									_elm_lang$core$Basics$toString((_p3._0._1 * size) + 1)),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$svg$Svg_Attributes$width(
-										_elm_lang$core$Basics$toString(size - 1)),
+										_elm_lang$core$Basics$toString(size)),
 									_1: {
 										ctor: '::',
 										_0: _elm_lang$svg$Svg_Attributes$height(
-											_elm_lang$core$Basics$toString(size - 1)),
+											_elm_lang$core$Basics$toString(size)),
 										_1: {
 											ctor: '::',
 											_0: _elm_lang$svg$Svg_Attributes$style(
-												A2(_elm_lang$core$Basics_ops['++'], 'fill:', color)),
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													'fill:',
+													A3(_user$project$Main$getOr, colors, _p3._1, '#0099cc'))),
 											_1: {ctor: '[]'}
 										}
 									}
@@ -9999,7 +10011,7 @@ var _user$project$Main$renderCells = F2(
 						},
 						{ctor: '[]'});
 				},
-				_elm_lang$core$Dict$toList(_p0));
+				_elm_lang$core$Dict$toList(_p1));
 		};
 	});
 var _user$project$Main$range = F3(
@@ -10012,7 +10024,7 @@ var _user$project$Main$range = F3(
 	});
 var _user$project$Main$renderGrid = F3(
 	function (width, height, cellSize) {
-		var lineStyle = 'stroke:#999999;stroke-width:1';
+		var lineStyle = 'stroke:#999999; stroke-opacity:0.5; stroke-width: 1';
 		var hs = _elm_lang$core$Basics$toString(height);
 		var ws = _elm_lang$core$Basics$toString(width);
 		var ys = A3(_user$project$Main$range, 0, height + 1, cellSize);
@@ -10081,12 +10093,13 @@ var _user$project$Main$renderGrid = F3(
 			xs);
 		return A2(_elm_lang$core$Basics_ops['++'], xls, yls);
 	});
-var _user$project$Main$view = function (_p3) {
-	var _p4 = _p3;
-	var _p5 = _p4.grid;
-	var width = _p5.width;
-	var height = _p5.height;
-	var cellSize = _p5.cellSize;
+var _user$project$Main$view = function (_p4) {
+	var _p5 = _p4;
+	var _p7 = _p5.colors;
+	var _p6 = _p5.grid;
+	var width = _p6.width;
+	var height = _p6.height;
+	var cellSize = _p6.cellSize;
 	var b = A2(
 		_elm_lang$svg$Svg$rect,
 		{
@@ -10105,7 +10118,11 @@ var _user$project$Main$view = function (_p3) {
 							_elm_lang$core$Basics$toString(height)),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$style('fill:#e6e6e6'),
+							_0: _elm_lang$svg$Svg_Attributes$style(
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									'fill:',
+									A3(_user$project$Main$getOr, _p7, 0, '#e6e6e6'))),
 							_1: {ctor: '[]'}
 						}
 					}
@@ -10114,7 +10131,7 @@ var _user$project$Main$view = function (_p3) {
 		},
 		{ctor: '[]'});
 	var g = A3(_user$project$Main$renderGrid, width, height, cellSize);
-	var c = A3(_user$project$Main$renderCells, cellSize, _p4.color, _p4.cells);
+	var c = A3(_user$project$Main$renderCells, cellSize, _p7, _p5.cells);
 	return A2(
 		_elm_lang$svg$Svg$svg,
 		{
@@ -10134,89 +10151,91 @@ var _user$project$Main$view = function (_p3) {
 			_1: A2(_elm_lang$core$Basics_ops['++'], c, g)
 		});
 };
-var _user$project$Main$wsAddress = function (_p6) {
-	var _p7 = _p6;
+var _user$project$Main$wsAddress = function (_p8) {
+	var _p9 = _p8;
+	var _p10 = _p9.pathName;
+	var xs = A2(_elm_lang$core$String$split, '/', _p10);
+	var path = A2(
+		_elm_lang$core$String$join,
+		'/',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			A2(
+				_elm_lang$core$List$take,
+				_elm_lang$core$List$length(xs) - 1,
+				A2(_elm_lang$core$String$split, '/', _p10)),
+			{
+				ctor: '::',
+				_0: 'websocket',
+				_1: {ctor: '[]'}
+			}));
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
 		'ws://',
 		A2(
 			_elm_lang$core$Basics_ops['++'],
-			_p7.host,
+			_p9.host,
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				':',
-				A2(_elm_lang$core$Basics_ops['++'], _p7.portNum, '/websocket'))));
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_p9.portNum,
+					A2(_elm_lang$core$String$startsWith, '/', path) ? path : A2(_elm_lang$core$Basics_ops['++'], '/', path)))));
 };
-var _user$project$Main$colors = _elm_lang$core$Array$fromList(
-	{
-		ctor: '::',
-		_0: '#483D8B',
-		_1: {
-			ctor: '::',
-			_0: '#007799',
-			_1: {
-				ctor: '::',
-				_0: '#4682B4',
-				_1: {
-					ctor: '::',
-					_0: '#708090',
-					_1: {
-						ctor: '::',
-						_0: '#808080',
-						_1: {ctor: '[]'}
-					}
-				}
-			}
-		}
-	});
-var _user$project$Main$toCellsDict = function (_p8) {
+var _user$project$Main$toColorsDict = function (_p11) {
 	return _elm_lang$core$Dict$fromList(
 		A2(
 			_elm_lang$core$List$map,
-			function (x) {
-				var _p9 = x;
-				if (((_p9.ctor === '::') && (_p9._1.ctor === '::')) && (_p9._1._1.ctor === '[]')) {
+			function (c) {
+				return {ctor: '_Tuple2', _0: c.code, _1: c.color};
+			},
+			_p11));
+};
+var _user$project$Main$toCellsDict = function (_p12) {
+	return _elm_lang$core$Dict$fromList(
+		A2(
+			_elm_lang$core$List$map,
+			function (c) {
+				var _p13 = c.point;
+				if (((_p13.ctor === '::') && (_p13._1.ctor === '::')) && (_p13._1._1.ctor === '[]')) {
 					return {
 						ctor: '_Tuple2',
-						_0: {ctor: '_Tuple2', _0: _p9._0, _1: _p9._1._0},
-						_1: true
+						_0: {ctor: '_Tuple2', _0: _p13._0, _1: _p13._1._0},
+						_1: c.color
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
 						_0: {ctor: '_Tuple2', _0: 0, _1: 0},
-						_1: false
+						_1: c.color
 					};
 				}
 			},
-			_p8));
+			_p12));
 };
-var _user$project$Main$cellsDecoder = A2(
-	_elm_lang$core$Json_Decode$field,
-	'alive',
-	_elm_lang$core$Json_Decode$list(
-		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$int)));
 var _user$project$Main$initModel = F2(
-	function (_p10, location) {
-		var _p11 = _p10;
+	function (_p14, location) {
+		var _p15 = _p14;
 		return {
 			grid: {width: 0, height: 0, cellSize: 1},
 			url: {
 				host: location.hostname,
-				portNum: _p11.dynamicWsPort ? location.port_ : '8080'
+				pathName: location.pathname,
+				portNum: _p15.dynamicWsPort ? location.port_ : '8080'
 			},
 			cells: _elm_lang$core$Dict$empty,
-			timing: {waitUntil: 0, sentAt: 0, delay: _p11.delay},
-			color: '#007799'
+			timing: {waitUntil: 0, sentAt: 0, delay: _p15.delay},
+			colors: A2(_elm_lang$core$Dict$singleton, 0, '#e6e6e6')
 		};
 	});
 var _user$project$Main$Flags = F2(
 	function (a, b) {
 		return {dynamicWsPort: a, delay: b};
 	});
-var _user$project$Main$Url = F2(
-	function (a, b) {
-		return {host: a, portNum: b};
+var _user$project$Main$Url = F3(
+	function (a, b, c) {
+		return {host: a, portNum: b, pathName: c};
 	});
 var _user$project$Main$Grid = F3(
 	function (a, b, c) {
@@ -10228,19 +10247,80 @@ var _user$project$Main$Timing = F3(
 	});
 var _user$project$Main$Model = F5(
 	function (a, b, c, d, e) {
-		return {grid: a, url: b, cells: c, timing: d, color: e};
+		return {grid: a, url: b, cells: c, timing: d, colors: e};
 	});
-var _user$project$Main$SetColor = function (a) {
-	return {ctor: 'SetColor', _0: a};
+var _user$project$Main$Cell = F2(
+	function (a, b) {
+		return {color: a, point: b};
+	});
+var _user$project$Main$cellDecoder = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$Main$Cell,
+	A2(_elm_lang$core$Json_Decode$field, 'color', _elm_lang$core$Json_Decode$int),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'point',
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$int)));
+var _user$project$Main$ColorMsg = F2(
+	function (a, b) {
+		return {color: a, code: b};
+	});
+var _user$project$Main$colorDecoder = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$Main$ColorMsg,
+	A2(_elm_lang$core$Json_Decode$field, 'color', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'code', _elm_lang$core$Json_Decode$int));
+var _user$project$Main$ErrorCode = function (a) {
+	return {ctor: 'ErrorCode', _0: a};
 };
-var _user$project$Main$init = F2(
-	function (flags, location) {
-		return {
-			ctor: '_Tuple2',
-			_0: A2(_user$project$Main$initModel, flags, location),
-			_1: A2(_elm_lang$core$Task$perform, _user$project$Main$SetColor, _elm_lang$core$Time$now)
-		};
-	});
+var _user$project$Main$ColorsMessage = function (a) {
+	return {ctor: 'ColorsMessage', _0: a};
+};
+var _user$project$Main$CellsMessage = function (a) {
+	return {ctor: 'CellsMessage', _0: a};
+};
+var _user$project$Main$payloadDecoder = function (msgType) {
+	var _p16 = msgType;
+	switch (_p16) {
+		case 'cells':
+			return A2(
+				_elm_lang$core$Json_Decode$map,
+				_user$project$Main$CellsMessage,
+				A2(
+					_elm_lang$core$Json_Decode$field,
+					'cells',
+					_elm_lang$core$Json_Decode$oneOf(
+						{
+							ctor: '::',
+							_0: _elm_lang$core$Json_Decode$null(
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$core$Json_Decode$list(_user$project$Main$cellDecoder),
+								_1: {ctor: '[]'}
+							}
+						})));
+		case 'colors':
+			return A2(
+				_elm_lang$core$Json_Decode$map,
+				_user$project$Main$ColorsMessage,
+				A2(
+					_elm_lang$core$Json_Decode$field,
+					'colors',
+					_elm_lang$core$Json_Decode$list(_user$project$Main$colorDecoder)));
+		case 'error':
+			return A2(
+				_elm_lang$core$Json_Decode$map,
+				_user$project$Main$ErrorCode,
+				A2(_elm_lang$core$Json_Decode$field, 'code', _elm_lang$core$Json_Decode$int));
+		default:
+			return _elm_lang$core$Json_Decode$fail('unknown type');
+	}
+};
+var _user$project$Main$messageDecoder = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	_user$project$Main$payloadDecoder,
+	A2(_elm_lang$core$Json_Decode$field, 'tag', _elm_lang$core$Json_Decode$string));
 var _user$project$Main$CurrentTime = function (a) {
 	return {ctor: 'CurrentTime', _0: a};
 };
@@ -10256,22 +10336,33 @@ var _user$project$Main$NewMessage = function (a) {
 var _user$project$Main$SetScreenSize = function (a) {
 	return {ctor: 'SetScreenSize', _0: a};
 };
+var _user$project$Main$init = F2(
+	function (flags, location) {
+		return {
+			ctor: '_Tuple2',
+			_0: A2(_user$project$Main$initModel, flags, location),
+			_1: A2(_elm_lang$core$Task$perform, _user$project$Main$SetScreenSize, _elm_lang$window$Window$size)
+		};
+	});
 var _user$project$Main$update = F2(
 	function (msg, model) {
-		var _p12 = model;
-		var grid = _p12.grid;
-		var url = _p12.url;
-		var cells = _p12.cells;
-		var timing = _p12.timing;
+		var _p17 = model;
+		var grid = _p17.grid;
+		var url = _p17.url;
+		var cells = _p17.cells;
+		var timing = _p17.timing;
 		var wsAddr = _user$project$Main$wsAddress(url);
-		var _p13 = msg;
-		switch (_p13.ctor) {
+		var _p18 = msg;
+		switch (_p18.ctor) {
 			case 'SetScreenSize':
-				var _p15 = _p13._0.width;
-				var _p14 = _p13._0.height;
-				var c = A2(_elm_lang$core$Basics$max, 10, (_p15 / 90) | 0);
-				var w = (_p15 - A2(_elm_lang$core$Basics_ops['%'], _p15, c)) - c;
-				var h = (_p14 - A2(_elm_lang$core$Basics_ops['%'], _p14, c)) - c;
+				var _p20 = _p18._0.width;
+				var _p19 = _p18._0.height;
+				var c = A2(
+					_elm_lang$core$Basics$max,
+					10,
+					(A2(_elm_lang$core$Basics$max, _p20, _p19) / 80) | 0);
+				var w = (_p20 - A2(_elm_lang$core$Basics_ops['%'], _p20, c)) - c;
+				var h = (_p19 - A2(_elm_lang$core$Basics_ops['%'], _p19, c)) - c;
 				var newGrid = {width: w, height: h, cellSize: c};
 				var cw = _elm_lang$core$Basics$toString((w / c) | 0);
 				var hw = _elm_lang$core$Basics$toString((h / c) | 0);
@@ -10292,63 +10383,63 @@ var _user$project$Main$update = F2(
 						{grid: newGrid}),
 					_1: A2(_elm_lang$websocket$WebSocket$send, wsAddr, msg)
 				};
-			case 'SetColor':
-				var rndIdx = A2(
-					_elm_lang$core$Basics_ops['%'],
-					_elm_lang$core$Basics$round(
-						_elm_lang$core$Time$inMilliseconds(_p13._0)),
-					_elm_lang$core$Array$length(_user$project$Main$colors));
-				var col = function () {
-					var _p16 = A2(_elm_lang$core$Array$get, rndIdx, _user$project$Main$colors);
-					if (_p16.ctor === 'Just') {
-						return _p16._0;
-					} else {
-						return '#007799';
-					}
-				}();
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{color: col}),
-					_1: A2(_elm_lang$core$Task$perform, _user$project$Main$SetScreenSize, _elm_lang$window$Window$size)
-				};
 			case 'NewMessage':
-				var result = A2(
-					_elm_lang$core$Result$map,
-					_user$project$Main$toCellsDict,
-					A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Main$cellsDecoder, _p13._0));
-				var newCells = function () {
-					var _p17 = result;
-					if (_p17.ctor === 'Ok') {
-						return _p17._0;
-					} else {
-						return _elm_lang$core$Dict$empty;
+				var result = A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Main$messageDecoder, _p18._0);
+				var _p21 = result;
+				if (_p21.ctor === 'Ok') {
+					switch (_p21._0.ctor) {
+						case 'CellsMessage':
+							var newCells = _user$project$Main$toCellsDict(_p21._0._0);
+							var task = _elm_lang$core$Dict$isEmpty(newCells) ? A2(_elm_lang$core$Task$perform, _user$project$Main$SetScreenSize, _elm_lang$window$Window$size) : A2(_elm_lang$core$Task$perform, _user$project$Main$CurrentTime, _elm_lang$core$Time$now);
+							return {
+								ctor: '_Tuple2',
+								_0: _elm_lang$core$Native_Utils.update(
+									model,
+									{cells: newCells}),
+								_1: task
+							};
+						case 'ColorsMessage':
+							return {
+								ctor: '_Tuple2',
+								_0: _elm_lang$core$Native_Utils.update(
+									model,
+									{
+										colors: _user$project$Main$toColorsDict(_p21._0._0)
+									}),
+								_1: _elm_lang$core$Platform_Cmd$none
+							};
+						default:
+							return {
+								ctor: '_Tuple2',
+								_0: model,
+								_1: A2(_elm_lang$core$Task$perform, _user$project$Main$SetScreenSize, _elm_lang$window$Window$size)
+							};
 					}
-				}();
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{cells: newCells}),
-					_1: A2(_elm_lang$core$Task$perform, _user$project$Main$CurrentTime, _elm_lang$core$Time$now)
-				};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{cells: _elm_lang$core$Dict$empty}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
 			case 'NewFrame':
-				var _p18 = _p13._0;
-				return (_elm_lang$core$Native_Utils.cmp(_p18, timing.waitUntil) < 0) ? {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none} : {
+				var _p22 = _p18._0;
+				return (_elm_lang$core$Native_Utils.cmp(_p22, timing.waitUntil) < 0) ? {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none} : {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							timing: _elm_lang$core$Native_Utils.update(
 								timing,
-								{sentAt: _p18, waitUntil: _p18 + 1000})
+								{sentAt: _p22, waitUntil: _p22 + 1000})
 						}),
 					_1: A2(_elm_lang$websocket$WebSocket$send, wsAddr, '{\"next\" : 1}')
 				};
 			case 'CurrentTime':
-				var _p19 = _p13._0;
-				var latency = _p19 - timing.sentAt;
+				var _p23 = _p18._0;
+				var latency = _p23 - timing.sentAt;
 				var wait = A2(_elm_lang$core$Basics$max, 0, timing.delay - latency);
 				return {
 					ctor: '_Tuple2',
@@ -10357,7 +10448,7 @@ var _user$project$Main$update = F2(
 						{
 							timing: _elm_lang$core$Native_Utils.update(
 								timing,
-								{waitUntil: _p19 + wait})
+								{waitUntil: _p23 + wait})
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10365,14 +10456,14 @@ var _user$project$Main$update = F2(
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
-var _user$project$Main$subscriptions = function (_p20) {
-	var _p21 = _p20;
+var _user$project$Main$subscriptions = function (_p24) {
+	var _p25 = _p24;
 	return _elm_lang$core$Platform_Sub$batch(
 		{
 			ctor: '::',
 			_0: A2(
 				_elm_lang$websocket$WebSocket$listen,
-				_user$project$Main$wsAddress(_p21.url),
+				_user$project$Main$wsAddress(_p25.url),
 				_user$project$Main$NewMessage),
 			_1: {
 				ctor: '::',

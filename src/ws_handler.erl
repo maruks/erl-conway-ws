@@ -14,16 +14,16 @@ init(Req, _State) ->
 handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], initial_state) ->
     {ok, Pid} = conway_sup:start_child(Width, Height),
     ok = conway_sup:start(Pid, Width, Height),
-    {ok, Pid};
+    {reply, {text, "{\"tag\":\"colors\", \"colors\":[ {\"color\":\"#4682b4\", \"code\":1} ]}"}, Pid};
 handle_message([{<<"start">>, [{<<"width">>, Width}, {<<"height">>, Height}]}], Pid) ->
     ok = conway_sup:start(Pid, Width, Height),
-    {ok, Pid};
+    {reply, {text, "{\"tag\":\"colors\", \"colors\":[ {\"color\":\"#4682b4\", \"code\":1} ]}"}, Pid};
 handle_message([{<<"next">>, _}], initial_state = S) ->
-    {reply, {text, jsx:encode([{type, error}, {code, 1}])}, S};
+    {reply, {text, jsx:encode([{tag, error}, {code, 2}])}, S};
 handle_message([{<<"next">>, _}], Pid) ->
     Grid = conway_sup:next(Pid),
-    ListGrid = sets:fold(fun({X,Y}, Acc) -> [[X,Y] | Acc] end, [], Grid),
-    {reply, {text, jsx:encode([{type, alive}, {cells, ListGrid}])}, Pid}.
+    ListGrid = sets:fold(fun({X,Y}, Acc) -> [{color, 1, point , [X,Y]} | Acc] end, [], Grid),
+    {reply, {text, jsx:encode([{tag, cells}, {cells, ListGrid}])}, Pid}.
 
 websocket_handle({text, Msg}, State) ->
     handle_message(jsx:decode(Msg), State);
