@@ -10093,13 +10093,85 @@ var _user$project$Main$renderGrid = F3(
 			xs);
 		return A2(_elm_lang$core$Basics_ops['++'], xls, yls);
 	});
-var _user$project$Main$view = function (_p4) {
+var _user$project$Main$wsAddress = function (_p4) {
 	var _p5 = _p4;
-	var _p7 = _p5.colors;
-	var _p6 = _p5.grid;
-	var width = _p6.width;
-	var height = _p6.height;
-	var cellSize = _p6.cellSize;
+	var _p6 = _p5.pathName;
+	var xs = A2(_elm_lang$core$String$split, '/', _p6);
+	var path = A2(
+		_elm_lang$core$String$join,
+		'/',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			A2(
+				_elm_lang$core$List$take,
+				_elm_lang$core$List$length(xs) - 1,
+				A2(_elm_lang$core$String$split, '/', _p6)),
+			{
+				ctor: '::',
+				_0: 'websocket',
+				_1: {ctor: '[]'}
+			}));
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'ws://',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			_p5.host,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				':',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_p5.portNum,
+					A2(_elm_lang$core$String$startsWith, '/', path) ? path : A2(_elm_lang$core$Basics_ops['++'], '/', path)))));
+};
+var _user$project$Main$toColorsDict = function (_p7) {
+	return _elm_lang$core$Dict$fromList(
+		A2(
+			_elm_lang$core$List$map,
+			function (c) {
+				return {ctor: '_Tuple2', _0: c.code, _1: c.color};
+			},
+			_p7));
+};
+var _user$project$Main$toCellsDict = function (_p8) {
+	return _elm_lang$core$Dict$fromList(
+		A2(
+			_elm_lang$core$List$map,
+			function (c) {
+				var _p9 = c.point;
+				if (((_p9.ctor === '::') && (_p9._1.ctor === '::')) && (_p9._1._1.ctor === '[]')) {
+					return {
+						ctor: '_Tuple2',
+						_0: {ctor: '_Tuple2', _0: _p9._0, _1: _p9._1._0},
+						_1: c.color
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: {ctor: '_Tuple2', _0: 0, _1: 0},
+						_1: c.color
+					};
+				}
+			},
+			_p8));
+};
+var _user$project$Main$visibleBufferFrame = function (_p10) {
+	var _p11 = _p10;
+	var _p12 = A2(_elm_lang$core$Array$get, _p11.showIndex, _p11.buffer);
+	if (_p12.ctor === 'Just') {
+		return _p12._0;
+	} else {
+		return _elm_lang$core$Dict$empty;
+	}
+};
+var _user$project$Main$view = function (_p13) {
+	var _p14 = _p13;
+	var _p16 = _p14.colors;
+	var _p15 = _p14.grid;
+	var width = _p15.width;
+	var height = _p15.height;
+	var cellSize = _p15.cellSize;
 	var b = A2(
 		_elm_lang$svg$Svg$rect,
 		{
@@ -10122,7 +10194,7 @@ var _user$project$Main$view = function (_p4) {
 								A2(
 									_elm_lang$core$Basics_ops['++'],
 									'fill:',
-									A3(_user$project$Main$getOr, _p7, 0, '#e6e6e6'))),
+									A3(_user$project$Main$getOr, _p16, 0, '#e6e6e6'))),
 							_1: {ctor: '[]'}
 						}
 					}
@@ -10131,7 +10203,11 @@ var _user$project$Main$view = function (_p4) {
 		},
 		{ctor: '[]'});
 	var g = A3(_user$project$Main$renderGrid, width, height, cellSize);
-	var c = A3(_user$project$Main$renderCells, cellSize, _p7, _p5.cells);
+	var c = A3(
+		_user$project$Main$renderCells,
+		cellSize,
+		_p16,
+		_user$project$Main$visibleBufferFrame(_p14.cells));
 	return A2(
 		_elm_lang$svg$Svg$svg,
 		{
@@ -10151,99 +10227,80 @@ var _user$project$Main$view = function (_p4) {
 			_1: A2(_elm_lang$core$Basics_ops['++'], c, g)
 		});
 };
-var _user$project$Main$wsAddress = function (_p8) {
-	var _p9 = _p8;
-	var _p10 = _p9.pathName;
-	var xs = A2(_elm_lang$core$String$split, '/', _p10);
-	var path = A2(
-		_elm_lang$core$String$join,
-		'/',
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			A2(
-				_elm_lang$core$List$take,
-				_elm_lang$core$List$length(xs) - 1,
-				A2(_elm_lang$core$String$split, '/', _p10)),
+var _user$project$Main$nextBufferFrame = function (_p17) {
+	var _p18 = _p17;
+	var _p20 = _p18.showIndex;
+	var _p19 = _p18;
+	var nextBuffer = _elm_lang$core$Native_Utils.eq(_p18.currentIndex, _p20) ? _p19 : _elm_lang$core$Native_Utils.update(
+		_p19,
+		{
+			showIndex: A2(_elm_lang$core$Basics$rem, _p20 + 1, _p18.size)
+		});
+	return nextBuffer;
+};
+var _user$project$Main$isBufferFull = function (_p21) {
+	var _p22 = _p21;
+	return _elm_lang$core$Native_Utils.eq(
+		_p22.showIndex,
+		A2(_elm_lang$core$Basics$rem, _p22.currentIndex + 1, _p22.size));
+};
+var _user$project$Main$addCellsToBuffer = F2(
+	function (cellsBuffer, cells) {
+		var _p23 = cellsBuffer;
+		var buffer = _p23.buffer;
+		var size = _p23.size;
+		var currentIndex = _p23.currentIndex;
+		var showIndex = _p23.showIndex;
+		var nextCurrentIdx = A2(_elm_lang$core$Basics$rem, currentIndex + 1, size);
+		return _user$project$Main$isBufferFull(cellsBuffer) ? cellsBuffer : _elm_lang$core$Native_Utils.update(
+			cellsBuffer,
 			{
-				ctor: '::',
-				_0: 'websocket',
-				_1: {ctor: '[]'}
-			}));
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		'ws://',
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			_p9.host,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				':',
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					_p9.portNum,
-					A2(_elm_lang$core$String$startsWith, '/', path) ? path : A2(_elm_lang$core$Basics_ops['++'], '/', path)))));
-};
-var _user$project$Main$toColorsDict = function (_p11) {
-	return _elm_lang$core$Dict$fromList(
-		A2(
-			_elm_lang$core$List$map,
-			function (c) {
-				return {ctor: '_Tuple2', _0: c.code, _1: c.color};
-			},
-			_p11));
-};
-var _user$project$Main$toCellsDict = function (_p12) {
-	return _elm_lang$core$Dict$fromList(
-		A2(
-			_elm_lang$core$List$map,
-			function (c) {
-				var _p13 = c.point;
-				if (((_p13.ctor === '::') && (_p13._1.ctor === '::')) && (_p13._1._1.ctor === '[]')) {
-					return {
-						ctor: '_Tuple2',
-						_0: {ctor: '_Tuple2', _0: _p13._0, _1: _p13._1._0},
-						_1: c.color
-					};
-				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: {ctor: '_Tuple2', _0: 0, _1: 0},
-						_1: c.color
-					};
-				}
-			},
-			_p12));
+				buffer: A3(_elm_lang$core$Array$set, nextCurrentIdx, cells, buffer),
+				currentIndex: nextCurrentIdx
+			});
+	});
+var _user$project$Main$initBuffer = function (size) {
+	return {
+		buffer: A2(_elm_lang$core$Array$repeat, size, _elm_lang$core$Dict$empty),
+		size: size,
+		currentIndex: 0,
+		showIndex: 0
+	};
 };
 var _user$project$Main$initModel = F2(
-	function (_p14, location) {
-		var _p15 = _p14;
+	function (_p24, location) {
+		var _p25 = _p24;
 		return {
 			grid: {width: 0, height: 0, cellSize: 1},
 			url: {
 				host: location.hostname,
 				pathName: location.pathname,
-				portNum: _p15.dynamicWsPort ? location.port_ : '8080'
+				portNum: _p25.dynamicWsPort ? location.port_ : '8080'
 			},
-			cells: _elm_lang$core$Dict$empty,
-			timing: {waitUntil: 0, sentAt: 0, delay: _p15.delay},
+			cells: _user$project$Main$initBuffer(_p25.bufferSize),
+			timing: {waitUntil: 0, delay: _p25.delay},
 			colors: A2(_elm_lang$core$Dict$singleton, 0, '#e6e6e6')
 		};
 	});
-var _user$project$Main$Flags = F2(
-	function (a, b) {
-		return {dynamicWsPort: a, delay: b};
+var _user$project$Main$Flags = F3(
+	function (a, b, c) {
+		return {dynamicWsPort: a, delay: b, bufferSize: c};
+	});
+var _user$project$Main$CellsDictBuffer = F4(
+	function (a, b, c, d) {
+		return {buffer: a, size: b, currentIndex: c, showIndex: d};
 	});
 var _user$project$Main$Url = F3(
 	function (a, b, c) {
 		return {host: a, portNum: b, pathName: c};
 	});
-var _user$project$Main$Grid = F3(
+var _user$project$Main$GridSize = F3(
 	function (a, b, c) {
 		return {width: a, height: b, cellSize: c};
 	});
-var _user$project$Main$Timing = F3(
-	function (a, b, c) {
-		return {waitUntil: a, sentAt: b, delay: c};
+var _user$project$Main$Timing = F2(
+	function (a, b) {
+		return {waitUntil: a, delay: b};
 	});
 var _user$project$Main$Model = F5(
 	function (a, b, c, d, e) {
@@ -10280,8 +10337,8 @@ var _user$project$Main$CellsMessage = function (a) {
 	return {ctor: 'CellsMessage', _0: a};
 };
 var _user$project$Main$payloadDecoder = function (msgType) {
-	var _p16 = msgType;
-	switch (_p16) {
+	var _p26 = msgType;
+	switch (_p26) {
 		case 'cells':
 			return A2(
 				_elm_lang$core$Json_Decode$map,
@@ -10321,9 +10378,6 @@ var _user$project$Main$messageDecoder = A2(
 	_elm_lang$core$Json_Decode$andThen,
 	_user$project$Main$payloadDecoder,
 	A2(_elm_lang$core$Json_Decode$field, 'tag', _elm_lang$core$Json_Decode$string));
-var _user$project$Main$CurrentTime = function (a) {
-	return {ctor: 'CurrentTime', _0: a};
-};
 var _user$project$Main$NewFrame = function (a) {
 	return {ctor: 'NewFrame', _0: a};
 };
@@ -10346,23 +10400,23 @@ var _user$project$Main$init = F2(
 	});
 var _user$project$Main$update = F2(
 	function (msg, model) {
-		var _p17 = model;
-		var grid = _p17.grid;
-		var url = _p17.url;
-		var cells = _p17.cells;
-		var timing = _p17.timing;
+		var _p27 = model;
+		var grid = _p27.grid;
+		var url = _p27.url;
+		var cells = _p27.cells;
+		var timing = _p27.timing;
 		var wsAddr = _user$project$Main$wsAddress(url);
-		var _p18 = msg;
-		switch (_p18.ctor) {
+		var _p28 = msg;
+		switch (_p28.ctor) {
 			case 'SetScreenSize':
-				var _p20 = _p18._0.width;
-				var _p19 = _p18._0.height;
+				var _p30 = _p28._0.width;
+				var _p29 = _p28._0.height;
 				var c = A2(
 					_elm_lang$core$Basics$max,
 					10,
-					(A2(_elm_lang$core$Basics$max, _p20, _p19) / 80) | 0);
-				var w = (_p20 - A2(_elm_lang$core$Basics_ops['%'], _p20, c)) - c;
-				var h = (_p19 - A2(_elm_lang$core$Basics_ops['%'], _p19, c)) - c;
+					(A2(_elm_lang$core$Basics$max, _p30, _p29) / 80) | 0);
+				var w = (_p30 - A2(_elm_lang$core$Basics_ops['%'], _p30, c)) - c;
+				var h = (_p29 - A2(_elm_lang$core$Basics_ops['%'], _p29, c)) - c;
 				var newGrid = {width: w, height: h, cellSize: c};
 				var cw = _elm_lang$core$Basics$toString((w / c) | 0);
 				var hw = _elm_lang$core$Basics$toString((h / c) | 0);
@@ -10380,22 +10434,26 @@ var _user$project$Main$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{grid: newGrid}),
+						{
+							grid: newGrid,
+							cells: _user$project$Main$initBuffer(cells.size)
+						}),
 					_1: A2(_elm_lang$websocket$WebSocket$send, wsAddr, msg)
 				};
 			case 'NewMessage':
-				var result = A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Main$messageDecoder, _p18._0);
-				var _p21 = result;
-				if (_p21.ctor === 'Ok') {
-					switch (_p21._0.ctor) {
+				var result = A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Main$messageDecoder, _p28._0);
+				var _p31 = result;
+				if (_p31.ctor === 'Ok') {
+					switch (_p31._0.ctor) {
 						case 'CellsMessage':
-							var newCells = _user$project$Main$toCellsDict(_p21._0._0);
-							var task = _elm_lang$core$Dict$isEmpty(newCells) ? A2(_elm_lang$core$Task$perform, _user$project$Main$SetScreenSize, _elm_lang$window$Window$size) : A2(_elm_lang$core$Task$perform, _user$project$Main$CurrentTime, _elm_lang$core$Time$now);
+							var newCells = _user$project$Main$toCellsDict(_p31._0._0);
+							var newBuffer = A2(_user$project$Main$addCellsToBuffer, cells, newCells);
+							var task = _elm_lang$core$Dict$isEmpty(newCells) ? A2(_elm_lang$core$Task$perform, _user$project$Main$SetScreenSize, _elm_lang$window$Window$size) : _elm_lang$core$Platform_Cmd$none;
 							return {
 								ctor: '_Tuple2',
 								_0: _elm_lang$core$Native_Utils.update(
 									model,
-									{cells: newCells}),
+									{cells: newBuffer}),
 								_1: task
 							};
 						case 'ColorsMessage':
@@ -10404,7 +10462,7 @@ var _user$project$Main$update = F2(
 								_0: _elm_lang$core$Native_Utils.update(
 									model,
 									{
-										colors: _user$project$Main$toColorsDict(_p21._0._0)
+										colors: _user$project$Main$toColorsDict(_p31._0._0)
 									}),
 								_1: _elm_lang$core$Platform_Cmd$none
 							};
@@ -10420,35 +10478,27 @@ var _user$project$Main$update = F2(
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{cells: _elm_lang$core$Dict$empty}),
+							{
+								cells: _user$project$Main$initBuffer(cells.size)
+							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'NewFrame':
-				var _p22 = _p18._0;
-				return (_elm_lang$core$Native_Utils.cmp(_p22, timing.waitUntil) < 0) ? {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none} : {
+				var _p32 = _p28._0;
+				return (_elm_lang$core$Native_Utils.cmp(_p32, timing.waitUntil) < 0) ? {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Main$isBufferFull(cells) ? _elm_lang$core$Platform_Cmd$none : A2(_elm_lang$websocket$WebSocket$send, wsAddr, '{\"next\" : 1}')
+				} : {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							timing: _elm_lang$core$Native_Utils.update(
 								timing,
-								{sentAt: _p22, waitUntil: _p22 + 1000})
-						}),
-					_1: A2(_elm_lang$websocket$WebSocket$send, wsAddr, '{\"next\" : 1}')
-				};
-			case 'CurrentTime':
-				var _p23 = _p18._0;
-				var latency = _p23 - timing.sentAt;
-				var wait = A2(_elm_lang$core$Basics$max, 0, timing.delay - latency);
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							timing: _elm_lang$core$Native_Utils.update(
-								timing,
-								{waitUntil: _p23 + wait})
+								{waitUntil: _p32 + timing.delay}),
+							cells: _user$project$Main$nextBufferFrame(cells)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10456,14 +10506,14 @@ var _user$project$Main$update = F2(
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
-var _user$project$Main$subscriptions = function (_p24) {
-	var _p25 = _p24;
+var _user$project$Main$subscriptions = function (_p33) {
+	var _p34 = _p33;
 	return _elm_lang$core$Platform_Sub$batch(
 		{
 			ctor: '::',
 			_0: A2(
 				_elm_lang$websocket$WebSocket$listen,
-				_user$project$Main$wsAddress(_p25.url),
+				_user$project$Main$wsAddress(_p34.url),
 				_user$project$Main$NewMessage),
 			_1: {
 				ctor: '::',
@@ -10482,16 +10532,21 @@ var _user$project$Main$main = A2(
 	{init: _user$project$Main$init, update: _user$project$Main$update, view: _user$project$Main$view, subscriptions: _user$project$Main$subscriptions})(
 	A2(
 		_elm_lang$core$Json_Decode$andThen,
-		function (delay) {
+		function (bufferSize) {
 			return A2(
 				_elm_lang$core$Json_Decode$andThen,
-				function (dynamicWsPort) {
-					return _elm_lang$core$Json_Decode$succeed(
-						{delay: delay, dynamicWsPort: dynamicWsPort});
+				function (delay) {
+					return A2(
+						_elm_lang$core$Json_Decode$andThen,
+						function (dynamicWsPort) {
+							return _elm_lang$core$Json_Decode$succeed(
+								{bufferSize: bufferSize, delay: delay, dynamicWsPort: dynamicWsPort});
+						},
+						A2(_elm_lang$core$Json_Decode$field, 'dynamicWsPort', _elm_lang$core$Json_Decode$bool));
 				},
-				A2(_elm_lang$core$Json_Decode$field, 'dynamicWsPort', _elm_lang$core$Json_Decode$bool));
+				A2(_elm_lang$core$Json_Decode$field, 'delay', _elm_lang$core$Json_Decode$float));
 		},
-		A2(_elm_lang$core$Json_Decode$field, 'delay', _elm_lang$core$Json_Decode$float)));
+		A2(_elm_lang$core$Json_Decode$field, 'bufferSize', _elm_lang$core$Json_Decode$int)));
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
