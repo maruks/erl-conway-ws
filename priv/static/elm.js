@@ -10278,7 +10278,7 @@ var _user$project$Main$initModel = F2(
 				portNum: _p25.dynamicWsPort ? location.port_ : '8080'
 			},
 			cells: _user$project$Main$initBuffer(_p25.bufferSize),
-			timing: {waitUntil: 0, delay: _p25.delay},
+			timing: {waitUntil: 0, delay: _p25.delay, nextReqSent: false},
 			colors: A2(_elm_lang$core$Dict$singleton, 0, '#e6e6e6')
 		};
 	});
@@ -10298,9 +10298,9 @@ var _user$project$Main$GridSize = F3(
 	function (a, b, c) {
 		return {width: a, height: b, cellSize: c};
 	});
-var _user$project$Main$Timing = F2(
-	function (a, b) {
-		return {waitUntil: a, delay: b};
+var _user$project$Main$Timing = F3(
+	function (a, b, c) {
+		return {waitUntil: a, delay: b, nextReqSent: c};
 	});
 var _user$project$Main$Model = F5(
 	function (a, b, c, d, e) {
@@ -10448,13 +10448,17 @@ var _user$project$Main$update = F2(
 						case 'CellsMessage':
 							var newCells = _user$project$Main$toCellsDict(_p31._0._0);
 							var newBuffer = A2(_user$project$Main$addCellsToBuffer, cells, newCells);
-							var task = _elm_lang$core$Dict$isEmpty(newCells) ? A2(_elm_lang$core$Task$perform, _user$project$Main$SetScreenSize, _elm_lang$window$Window$size) : _elm_lang$core$Platform_Cmd$none;
 							return {
 								ctor: '_Tuple2',
 								_0: _elm_lang$core$Native_Utils.update(
 									model,
-									{cells: newBuffer}),
-								_1: task
+									{
+										cells: newBuffer,
+										timing: _elm_lang$core$Native_Utils.update(
+											timing,
+											{nextReqSent: false})
+									}),
+								_1: _elm_lang$core$Platform_Cmd$none
 							};
 						case 'ColorsMessage':
 							return {
@@ -10486,11 +10490,17 @@ var _user$project$Main$update = F2(
 				}
 			case 'NewFrame':
 				var _p32 = _p28._0;
-				return (_elm_lang$core$Native_Utils.cmp(_p32, timing.waitUntil) < 0) ? {
+				return (_elm_lang$core$Native_Utils.cmp(_p32, timing.waitUntil) < 0) ? ((_user$project$Main$isBufferFull(cells) || timing.nextReqSent) ? {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none} : {
 					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Main$isBufferFull(cells) ? _elm_lang$core$Platform_Cmd$none : A2(_elm_lang$websocket$WebSocket$send, wsAddr, '{\"next\" : 1}')
-				} : {
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							timing: _elm_lang$core$Native_Utils.update(
+								timing,
+								{nextReqSent: true})
+						}),
+					_1: A2(_elm_lang$websocket$WebSocket$send, wsAddr, '{\"next\" : 1}')
+				}) : {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
